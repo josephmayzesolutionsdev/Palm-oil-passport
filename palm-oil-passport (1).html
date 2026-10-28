@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Palm Oil Passport · Border Check</title>
+<style>
+:root{--navy:#14213d;--paper:#e8edf4;--page:#f6f8fb;--red:#b3141f;--green:#17794a;--teal:#0b6e6e;--amber:#b86e00;--ink:#1b2438;--mute:#5a6580}
+*{box-sizing:border-box}
+body{margin:0;background:var(--navy);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh;padding:14px 12px 40px}
+.wrap{max-width:520px;margin:0 auto}
+header{color:#dfe7f5;text-align:center;padding:6px 0 12px}
+header h1{font:700 1.35rem/1.2 Georgia,"Iowan Old Style",serif;margin:0;letter-spacing:.02em}
+header p{margin:4px 0 0;font-size:.85rem;color:#9fb0cf}
+.tabs{display:flex;gap:8px;margin-bottom:12px}
+.tabs button{flex:1;padding:10px 8px;border:2px solid #3a4d78;background:transparent;color:#cfd9ee;font:600 .9rem system-ui;border-radius:8px;cursor:pointer}
+.tabs button[aria-selected=true]{background:var(--page);color:var(--navy);border-color:var(--page)}
+button:focus-visible{outline:3px solid #ffd166;outline-offset:2px}
+.book{position:relative;background:var(--page);border-radius:6px 14px 14px 6px;border-left:10px solid #0c1630;padding:16px 16px 12px;box-shadow:0 10px 30px #0008;overflow:hidden;background-image:repeating-radial-gradient(circle at 85% 8%,#0000 0 9px,#14213d0d 9px 10px)}
+.book h2{font:700 1.25rem/1.2 Georgia,serif;margin:0 0 2px}
+.sub{color:var(--mute);font-size:.82rem;margin:0 0 12px}
+.top{display:grid;grid-template-columns:150px 1fr;gap:12px}
+.map{position:relative;aspect-ratio:3/4;border:2px solid var(--navy);border-radius:4px;overflow:hidden;background:#0f2a1f}
+.map svg{width:100%;height:100%;display:block}
+.sweep{position:absolute;inset:-40%;background:conic-gradient(from 0deg,#2cf3b300 0 80%,#2cf3b366 100%);border-radius:50%;animation:spin 3s linear infinite;opacity:0;transition:opacity .3s;pointer-events:none}
+.map.on .sweep{opacity:1}
+@keyframes spin{to{transform:rotate(360deg)}}
+.cap{position:absolute;left:0;right:0;bottom:0;background:#0009;color:#d6ffe9;font:.62rem/1.2 ui-monospace,monospace;padding:3px 5px}
+dl{margin:0;display:grid;gap:7px;align-content:start}
+dt{font-size:.68rem;color:var(--mute);margin:0}
+dd{margin:0;font-weight:650;font-size:.92rem}
+.bars{margin:14px 0 4px;display:grid;gap:9px}
+.bar b{display:flex;justify-content:space-between;font-size:.82rem}
+.track{height:14px;background:#d6dde9;border-radius:7px;overflow:hidden;display:flex}
+.v{background:var(--green);width:0;transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
+.u{background:var(--amber);width:0;transition:width 1.1s cubic-bezier(.2,.8,.2,1) .15s}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.chip{border:1.5px solid #b9c4d8;border-radius:8px;padding:6px 8px;font-size:.78rem;background:#fff}
+.chip span{display:block;color:var(--mute);font-size:.68rem}
+.log{margin:12px 0 0;background:#0c1630;color:#bfe9d6;border-radius:6px;padding:8px 10px;font:.74rem/1.5 ui-monospace,Menlo,monospace;min-height:7.4em}
+.log p{margin:0}.log .bad{color:#ff8b8b}.log .ok{color:#7dffb0}
+.mrz{margin:12px -4px 0;font:.66rem/1.35 ui-monospace,monospace;letter-spacing:.08em;color:#33415f;word-break:break-all}
+.stamp{position:absolute;right:10px;top:150px;transform:rotate(-14deg) scale(3);opacity:0;border:5px double currentColor;border-radius:8px;padding:6px 14px;font:900 1.9rem/1 "Arial Black",Impact,sans-serif;letter-spacing:.05em;pointer-events:none;mix-blend-mode:multiply;text-align:center;background:#fff8}
+.stamp small{display:block;font:700 .7rem system-ui;letter-spacing:.12em;margin-top:3px}
+.stamp.ok{color:var(--green)}.stamp.bad{color:var(--red)}
+.stamp.show{animation:slam .45s cubic-bezier(.2,1.4,.4,1) forwards}
+@keyframes slam{0%{opacity:0;transform:rotate(-14deg) scale(3)}60%{opacity:1;transform:rotate(-14deg) scale(.92)}100%{opacity:.93;transform:rotate(-14deg) scale(1)}}
+.book.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-5px)}60%{transform:translateX(5px)}}
+.ctl{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.ctl button{flex:1;min-width:110px;padding:13px 10px;border:0;border-radius:8px;font:800 1rem system-ui;cursor:pointer}
+#run{flex:2;background:#ffd166;color:var(--navy)}#run:disabled{opacity:.6;cursor:wait}#say:disabled{opacity:.4;cursor:not-allowed}
+.ghost{background:#26385f;color:#dfe7f5}
+.note{color:#8ea0c4;font-size:.75rem;text-align:center;margin-top:14px}
+@media(max-width:380px){.top{grid-template-columns:1fr}.map{aspect-ratio:4/3}.stamp{top:210px}}
+[hidden]{display:none!important}
+.game{background:var(--page);border-radius:6px 14px 14px 6px;border-left:10px solid #0c1630;padding:16px;box-shadow:0 10px 30px #0008}
+.game h2{font:700 1.3rem/1.2 Georgia,serif;margin:0}.game .q{font-size:.85rem;margin:10px 0 0;color:var(--mute)}
+.meters{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.m b{display:flex;justify-content:space-between;font-size:.74rem}
+.m i{display:block;height:9px;background:#d6dde9;border-radius:5px;overflow:hidden}
+.m s{display:block;height:100%;background:var(--teal);transition:width .7s}
+.ev{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 14px}
+.ev button{text-align:left;padding:10px;border:1.5px solid #b9c4d8;background:#fff;border-radius:8px;font:700 .84rem system-ui;color:var(--ink);cursor:pointer}
+.ev button.open{background:#fff4c9;border-color:#d4a82e}
+.ev button:disabled{opacity:.4;cursor:not-allowed}
+.ev small{display:block;font-weight:400;color:var(--mute);margin-top:4px;line-height:1.35}
+.act{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.act button{padding:13px 6px;border:0;border-radius:8px;font:800 .88rem system-ui;color:#fff;cursor:pointer}
+.fb{padding:12px;border-radius:8px;font-size:.92rem;border-left:6px solid}
+.fb.good{background:#dff3e8;border-color:var(--green)}.fb.bad{background:#fbe3e3;border-color:var(--red)}
+#nx,#again{flex:1;background:#ffd166;color:var(--navy)}
+.rank{font:700 1.6rem/1.2 Georgia,serif;margin:6px 0 10px}.game p.r{margin:6px 0;font-size:.88rem}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><h1>Palm Oil Border Force</h1><p>Port Botany terminal. No passport, no market access.</p></header>
+<div class="tabs modes"><button id="m-scan" aria-selected="true">Scan a passport</button><button id="m-play" aria-selected="false">Play: Border Officer</button></div>
+<section class="game" id="game" hidden></section>
+<div class="tabs" role="tablist" aria-label="Choose a batch">
+<button role="tab" id="t-clean" aria-selected="true">Batch A</button>
+<button role="tab" id="t-flagged" aria-selected="false">Batch B</button>
+</div>
+<main class="book" id="book">
+<h2 id="prod">Palm Oil Passport</h2>
+<p class="sub" id="batch"></p>
+<div class="top">
+<div class="map" id="map" aria-label="Radar view of the farm boundary">
+<svg viewBox="0 0 150 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+<defs><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="4"/><feColorMatrix values="0 0 0 0 .2  0 0 0 .9 .3  0 0 0 0 .2  0 0 0 .55 0"/></filter></defs>
+<rect width="150" height="200" fill="#0f2a1f"/><rect width="150" height="200" filter="url(#n)" opacity=".75"/>
+<path d="M0 150 Q50 120 150 165" stroke="#5cc8ff" stroke-width="3" fill="none" opacity=".5"/>
+<polygon points="22,32 124,24 134,118 98,150 30,138" fill="none" stroke="#7df9ff" stroke-width="1.6" stroke-dasharray="5 3"/>
+<polygon id="cut" points="80,62 116,58 120,96 88,104" fill="#ff3b3b" opacity="0" stroke="#ffb3b3" stroke-width="1.2"/>
+<g id="pins" opacity="0" fill="#ffe66d"><circle cx="92" cy="72" r="3"/><circle cx="108" cy="82" r="3"/><circle cx="98" cy="94" r="3"/></g>
+</svg>
+<div class="sweep"></div><div class="cap" id="cap">Sentinel-1 radar, ready</div>
+</div>
+<dl>
+<div><dt>Origin</dt><dd id="origin"></dd></div>
+<div><dt>Estate</dt><dd id="estate"></dd></div>
+<div><dt>Harvested</dt><dd id="harv"></dd></div>
+<div><dt>Deforestation since 2015</dt><dd id="defo">Not checked</dd></div>
+<div><dt>Peatland converted</dt><dd id="peat">Not checked</dd></div>
+</dl>
+</div>
+<div class="bars" aria-label="Traceability score">
+<div class="bar"><b><span>Traceability</span><span id="tl">Not checked</span></b>
+<div class="track"><div class="v" id="v"></div><div class="u" id="u"></div></div></div>
+</div>
+<div class="three">
+<div class="chip"><span>Traceability</span><b id="c1">-</b></div>
+<div class="chip"><span>Environment</span><b id="c2">-</b></div>
+<div class="chip"><span>Social risk</span><b id="c3">-</b></div>
+</div>
+<div class="log" id="log" role="log" aria-live="polite"><p>Tap Run border check to start.</p></div>
+<div class="mrz" aria-hidden="true">P&lt;AUSPALM&lt;&lt;OIL&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;<br><span id="mrz"></span></div>
+<div class="stamp" id="stamp" role="status"></div>
+</main>
+<div class="ctl">
+<button id="run">Run border check</button>
+<button class="ghost" id="say" disabled>Read result</button>
+<button class="ghost" id="reset">Reset</button>
+</div>
+<p class="note">Prototype for a university project. All batch, farm and radar data on this page is simulated.</p>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const D={
+clean:{id:"PB0412",name:"Koala Crunch Biscuits",origin:"Sabah, Malaysia",estate:"Demo Estate 47",harv:"14 Mar 2026",defo:"0 ha",peat:"0 ha",ver:88,unt:12,c1:"88% verified",c2:"Low risk",c3:"Low (audited)",ok:true,hits:0,
+log:["Reading passport PB0412…","Fetching farm boundary: 214 ha GPS polygon","Cloud cover 87%. Optical imagery is blind, switching to radar","Querying Sentinel-1 radar alerts inside the boundary…","Comparing alerts with the 2015 baseline…","0 clearing alerts found. Mill records match. Cleared for entry."],
+say:"Koala Crunch Biscuits. Approved. No clearing found inside the farm boundary. Eighty-eight percent of the palm oil is verified, twelve percent is untraced."},
+flagged:{id:"PB0977",name:"Bunyip Choc Spread",origin:"Riau, Indonesia",estate:"Demo Estate 12",harv:"2 Sep 2026",defo:"6.4 ha",peat:"2.1 ha",ver:41,unt:59,c1:"41% verified",c2:"High risk",c3:"Unknown (no audit)",ok:false,hits:3,
+log:["Reading passport PB0977…","Fetching farm boundary: 187 ha GPS polygon","Cloud cover 91%. Optical imagery is blind, switching to radar","Querying Sentinel-1 radar alerts inside the boundary…","Comparing alerts with the 2015 baseline…","3 clearing alerts inside boundary: 6.4 ha, 2.1 ha on peat. Supplier declared 0 ha. Border hold."],
+say:"Bunyip Choc Spread. Border hold. Radar found clearing inside the farm boundary, although the supplier declared zero. Only forty-one percent of the palm oil is traceable."}};
+let cur="clean",busy=false,timers=[];
+function load(k){
+ cur=k;busy=false;timers.forEach(clearTimeout);timers=[];const d=D[k];
+ $("t-clean").setAttribute("aria-selected",k=="clean");$("t-flagged").setAttribute("aria-selected",k=="flagged");
+ $("prod").textContent=d.name;$("batch").textContent="Batch "+d.id+" · imported to Port Botany";
+ $("origin").textContent=d.origin;$("estate").textContent=d.estate;$("harv").textContent=d.harv;
+ $("defo").textContent="Not checked";$("peat").textContent="Not checked";$("tl").textContent="Not checked";
+ ["c1","c2","c3"].forEach(i=>$(i).textContent="-");
+ $("v").style.width=0;$("u").style.width=0;$("cut").style.opacity=0;$("pins").style.opacity=0;
+ $("map").classList.remove("on");$("cap").textContent="Sentinel-1 radar, ready";
+ $("log").innerHTML="<p>Tap Run border check to start.</p>";
+ const s=$("stamp");s.className="stamp";s.innerHTML="";
+ $("mrz").textContent=d.id+"<<AUS<<"+d.origin.slice(0,5).toUpperCase().replace(/[^A-Z]/g,"")+"<<<<<<<<<<<<<<<<<<<<<<<<";
+ $("run").disabled=false;$("run").textContent="Run border check";
+ $("say").disabled=true;if("speechSynthesis"in window)speechSynthesis.cancel();const sx=$("sayText");if(sx)sx.remove();
+ history.replaceState(null,"","#"+k);
+}
+function run(){
+ if(busy)return;busy=true;const d=D[cur];$("run").disabled=true;$("run").textContent="Checking…";
+ $("log").innerHTML="";$("map").classList.add("on");$("cap").textContent="Radar sweep in progress";
+ d.log.forEach((t,i)=>timers.push(setTimeout(()=>{
+  const last=i==d.log.length-1,p=document.createElement("p");
+  p.textContent="> "+t;if(last)p.className=d.ok?"ok":"bad";$("log").appendChild(p);
+  if(i==3){$("cap").textContent="Radar: scanning boundary"}
+  if(last)verdict(d);
+ },i*900+300)));
+}
+function verdict(d){
+ $("map").classList.remove("on");
+ if(!d.ok){$("cut").style.opacity=.75;$("pins").style.opacity=1;$("cap").textContent=d.hits+" clearing alerts"}else{$("cap").textContent="No alerts. Forest intact"}
+ $("defo").textContent=d.defo;$("peat").textContent=d.peat;$("tl").textContent=d.ver+"% verified · "+d.unt+"% untraced";
+ $("v").style.width=d.ver+"%";$("u").style.width=d.unt+"%";$("c1").textContent=d.c1;$("c2").textContent=d.c2;$("c3").textContent=d.c3;
+ const s=$("stamp");s.className="stamp "+(d.ok?"ok":"bad");
+ s.innerHTML=(d.ok?"APPROVED":"BORDER HOLD")+"<small>"+(d.ok?"CLEARED FOR ENTRY":"PORT BOTANY")+"</small>";
+ void s.offsetWidth;s.classList.add("show");
+ if(!d.ok){const b=$("book");b.classList.remove("shake");void b.offsetWidth;b.classList.add("shake")}
+ if(navigator.vibrate)navigator.vibrate(d.ok?60:[90,50,90]);
+ $("run").textContent="Check complete";$("say").disabled=false;busy=false;
+}
+$("run").onclick=run;$("reset").onclick=()=>load(cur);
+$("t-clean").onclick=()=>load("clean");$("t-flagged").onclick=()=>load("flagged");
+$("say").onclick=()=>{const t=D[cur].say,b=$("say");
+const show=m=>{b.textContent=m;setTimeout(()=>b.textContent="Read result",2500)};
+let box=$("sayText");if(!box){box=document.createElement("p");box.id="sayText";box.className="note";box.setAttribute("role","status");b.parentNode.parentNode.insertBefore(box,b.parentNode.nextSibling)}
+box.textContent="Result: "+t;
+try{if(!("speechSynthesis"in window)||typeof SpeechSynthesisUtterance==="undefined"){show("Audio not supported");return}
+const ss=window.speechSynthesis;ss.cancel();ss.resume();
+const u=new SpeechSynthesisUtterance(t);u.lang="en-AU";u.rate=1;
+const vs=ss.getVoices();const v=vs.find(x=>x.lang==="en-AU")||vs.find(x=>/^en/i.test(x.lang));if(v)u.voice=v;
+u.onerror=()=>show("Audio blocked, text shown");
+setTimeout(()=>ss.speak(u),60)}catch(e){show("Audio blocked, text shown")}};
+if("speechSynthesis"in window){speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices()}
+addEventListener("hashchange",()=>{const k=location.hash.slice(1);if(D[k]&&k!=cur)load(k)});
+const MN=["Forest","Fairness","Trust"],L={approve:"Approve",hold:"Border hold",audit:"Audit and support"};
+const C=[
+{t:"Koala Crunch Biscuits",s:"Sabah, Malaysia · 214 ha estate",b:"approve",k:[1],
+e:[["Supplier declaration","Declares 0 ha cleared since 2015. RSPO member, paperwork complete."],["Radar check","No clearing alerts inside the 214 ha boundary."],["Mill records","All fruit traced to 3 registered estates."],["Community notes","Last audit passed. Workers paid on time."]],
+o:{approve:["Clean evidence shouldn’t wait. Good suppliers need to see the system rewards them.",0,5,10],hold:["Holding a clean batch punishes the suppliers you want to reward.",0,-10,-10],audit:["Safe, but auditing everything doesn’t scale. Automation is there so humans can focus on doubtful cases.",0,-5,-5]},
+l:"Clean evidence moves fast, which keeps the system scalable."},
+{t:"Bunyip Choc Spread",s:"Riau, Indonesia · 187 ha estate",b:"hold",k:[1],
+e:[["Supplier declaration","Declares 0 ha cleared since 2015."],["Radar check","3 clearing alerts inside the boundary: 6.4 ha, with 2.1 ha on peat."],["Mill records","Paperwork matches the declaration."],["Community notes","No third-party audit on file."]],
+o:{approve:["The passport just launders a lie, and the forest keeps falling.",-25,0,-20],hold:["Declared 0 ha, radar says 6.4. This is exactly what the border is for.",20,0,10],audit:["Reasonable, but the radar evidence is already strong. The supplier gets time to ship it elsewhere.",5,0,-5]},
+l:"Declarations get checked against radar, not trusted."},
+{t:"Harapan Smallholder Co-op (fictional)",s:"Sabah, Malaysia · 60 families, 38 ha",b:"audit",k:[1,3],
+e:[["Supplier declaration","Paper forms only, no digital file. Lodged by the co-op for 60 families."],["Radar check","No clearing alerts. Plots were mapped by the co-op last month."],["Mill records","Fruit sold through one local mill."],["Community notes","No smartphones. The transition fund can pay for a tablet and training."]],
+o:{approve:["Entry is fine, but with no records the passport stays blank and nothing improves.",0,5,-10],hold:["A hold shuts out 60 families over a paperwork gap. This is how traceability schemes push smallholders out.",0,-25,-5],audit:["The forest is fine. The gap is paperwork, so fund the onboarding instead of blocking them.",5,25,10]},
+l:"Fairness means fixing the paperwork gap, not punishing smallholders for it."},
+{t:"Wombat Peanut Butter",s:"Refinery blending 5 mills",b:"approve",k:[1,2],
+e:[["Supplier declaration","Refinery blends oil from 5 mills in one vat."],["Radar check","4 mills are clean. 1 mill’s supply area shows alerts."],["Mill records","Mass balance: 70% verified, 30% untraced."],["Community notes","Brand wants to launch next month."]],
+o:{approve:["Mixed isn’t banned, it’s disclosed. The 70/30 score shows on the shelf, so brands feel the pressure.",8,5,8],hold:["Refineries can’t unmix oil. A hold pushes brands towards other oils that may need more land.",-10,-10,-5],audit:["Good instinct on the one flagged mill, but the passport already caps the damage.",10,0,3]},
+l:"A visible traceability score works better than a ban on mixed oil."},
+{t:"Quokka Cookie Co.",s:"Central Kalimantan, Indonesia",b:"audit",k:[2,3],
+e:[["Supplier declaration","0 ha declared. All farms registered."],["Radar check","No alerts inside any registered boundary."],["Mill records","Mill processed 40% more fruit than its registered farms can produce."],["Community notes","Locals report new clearing just outside the registered fence."]],
+o:{approve:["Radar only checks boundaries it’s given. Laundered fruit walks straight in.",-20,0,-20],hold:["Suspicion without evidence erodes trust in the whole system.",0,-10,-10],audit:["The volume mismatch is the tell. Audit the mill and sweep the land outside the boundaries.",20,0,15]},
+l:"Satellites can’t see laundering, so radar works alongside mill audits."}];
+let G;
+function gstart(){G={i:0,m:[50,50,50],seen:[],done:false,res:[],fb:""};grender()}
+function grender(){
+ let h='<div class="meters">'+MN.map((n,k)=>'<div class="m"><b><span>'+n+'</span><span>'+G.m[k]+'</span></b><i><s style="width:'+G.m[k]+'%"></s></i></div>').join("")+'</div>';
+ if(G.i>=C.length){
+  const a=Math.round(G.m.reduce((x,y)=>x+y)/3),r=a>=80?"Chief Inspector":a>=65?"Senior Officer":a>=50?"Border Officer":"Trainee";
+  h+='<p class="q">Your result</p><div class="rank">'+r+'</div><p class="r">Right calls: '+G.res.filter(Boolean).length+' of '+C.length+'. Average score: '+a+'.</p>'+C.map((c,k)=>'<p class="r">'+(G.res[k]?"✓ ":"✗ ")+'<b>'+c.t+'.</b> '+c.l+'</p>').join("")+'<p class="r">The passport automates the easy cases so humans can spend time on the hard ones.</p><div class="ctl"><button id="again" onclick="gstart()">Play again</button></div>';
+  $("game").innerHTML=h;return}
+ const c=C[G.i];
+ h+='<p class="sub">Case '+(G.i+1)+' of '+C.length+'</p><h2>'+c.t+'</h2><p class="sub">'+c.s+'</p><p class="q">Open any 2 of the 4 files before you decide.</p><div class="ev">'+c.e.map((x,j)=>{const o=G.seen.includes(j);return '<button class="'+(o?"open":"")+'" onclick="gopen('+j+')"'+(!o&&G.seen.length>=2?" disabled":"")+'>'+x[0]+'<small>'+(o?x[1]:"Tap to open")+'</small></button>'}).join("")+'</div>';
+ h+=G.done?G.fb:'<div class="act">'+[["approve","#17794a"],["hold","#b3141f"],["audit","#0b6e6e"]].map(a=>'<button style="background:'+a[1]+'" onclick="gdecide(\''+a[0]+'\')">'+L[a[0]]+'</button>').join("")+'</div>';
+ $("game").innerHTML=h;
+}
+function gopen(j){if(G.done||G.seen.includes(j)||G.seen.length>=2)return;G.seen.push(j);grender()}
+function gdecide(a){
+ const c=C[G.i],o=c.o[a],ok=a==c.b,miss=c.k.filter(j=>!G.seen.includes(j));
+ G.m=G.m.map((v,k)=>Math.max(0,Math.min(100,v+o[k+1])));G.res.push(ok);G.done=true;
+ G.fb='<div class="fb '+(ok?"good":"bad")+'"><b>'+(ok?"Good call. ":"Not quite. ")+'</b>'+o[0]+(ok?"":'<br>Best move: '+L[c.b]+'.')+(!ok&&miss.length?'<br>Tip: the “'+c.e[miss[0]][0]+'” file held the clue.':"")+'</div><div class="ctl"><button id="nx" onclick="gnext()">'+(G.i==C.length-1?"See your result":"Next case")+'</button></div>';
+ grender();
+}
+function gnext(){G.i++;G.seen=[];G.done=false;grender();scrollTo({top:0,behavior:"smooth"})}
+document.querySelectorAll(".tabs:not(.modes),#book,.ctl").forEach(e=>e.classList.add("scanonly"));
+function mode(m){const p=m=="play";document.querySelectorAll(".scanonly").forEach(e=>e.hidden=p);$("game").hidden=!p;
+ $("m-scan").setAttribute("aria-selected",!p);$("m-play").setAttribute("aria-selected",p);
+ if(p&&!G)gstart();history.replaceState(null,"",p?"#play":"#"+cur)}
+$("m-scan").onclick=()=>mode("scan");$("m-play").onclick=()=>mode("play");
+const H0=location.hash;
+load(D[location.hash.slice(1)]?location.hash.slice(1):"clean");
+if(H0=="#play")mode("play");
+</script>
+</body>
+</html>
